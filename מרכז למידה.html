@@ -1,0 +1,2123 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מרכז הלמידה הבית ספרי</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-database-compat.js"></script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #4fd1c7 0%, #81c784 100%);
+            min-height: 100vh;
+        }
+        
+        .card-shadow {
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            transition: all 0.3s ease;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.4);
+            background: linear-gradient(135deg, #5a67d8 0%, #6b46c1 100%);
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.6s ease-in;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .icon-bounce {
+            animation: bounce 2s infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+        
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e5e7eb;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="gradient-bg min-h-screen font-sans text-gray-800">
+    <!-- עמוד פתיחה -->
+    <div id="homePage" class="fade-in">
+        <div class="container mx-auto px-4 py-8">
+            <!-- כותרת ראשית -->
+            <div class="text-center mb-12">
+                <div class="flex justify-center items-center mb-6">
+                    <div class="text-6xl icon-bounce">📚</div>
+                    <div class="text-6xl mx-4 icon-bounce" style="animation-delay: 0.2s;">💡</div>
+                    <div class="text-6xl icon-bounce" style="animation-delay: 0.4s;">✏️</div>
+                </div>
+                <h1 class="text-5xl font-bold text-white mb-4 drop-shadow-lg">מרכז למידה והעשרה</h1>
+                <h2 class="text-2xl font-semibold text-white/90 mb-4 drop-shadow-md">חט"ב אורט גוטמן</h2>
+                <div class="w-24 h-1 bg-gradient-to-r from-purple-500 to-cyan-500 mx-auto rounded-full"></div>
+            </div>
+
+            <!-- תיאור המרכז -->
+            <div class="max-w-5xl mx-auto mb-12">
+                <div class="bg-white/95 backdrop-blur-lg rounded-3xl p-10 card-shadow border border-white/20">
+                    <div class="text-center mb-8">
+                        <h3 class="text-2xl font-bold text-purple-800 mb-6">🌟 ברוכים הבאים למרכז שלנו! 🌟</h3>
+                    </div>
+                    
+                    <div class="grid md:grid-cols-3 gap-8 mb-8">
+                        <div class="text-center">
+                            <div class="text-4xl mb-4">📚</div>
+                            <h4 class="text-lg font-bold text-purple-700 mb-3">תגבור אקדמי</h4>
+                            <p class="text-blue-800 leading-relaxed font-sans text-lg">
+                                הכנה למבחנים, חיזוק החומר הנלמד בכיתה ושיפור הציונים
+                            </p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="text-4xl mb-4">🎯</div>
+                            <h4 class="text-lg font-bold text-purple-700 mb-3">יחס אישי</h4>
+                            <p class="text-blue-800 leading-relaxed font-sans text-lg">
+                                קבוצות קטנות, תשומת לב ממוקדת ושיפור תחושת המסוגלות העצמית
+                            </p>
+                        </div>
+                        
+                        <div class="text-center">
+                            <div class="text-4xl mb-4">🚀</div>
+                            <h4 class="text-lg font-bold text-purple-700 mb-3">כלים להצלחה</h4>
+                            <p class="text-blue-800 leading-relaxed font-sans text-lg">
+                                אסטרטגיות למידה יעילות, ארגון זמן והתמודדות עם מטלות
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- כפתורי רישום -->
+            <div class="flex flex-col md:flex-row gap-8 justify-center items-center max-w-2xl mx-auto">
+                <button onclick="showPasswordDialog('teacher')" class="btn-primary text-white px-12 py-6 rounded-2xl text-xl font-bold w-full md:w-auto flex items-center justify-center gap-4">
+                    <span class="text-3xl">👨‍🏫</span>
+                    רישום למורים
+                </button>
+                <button onclick="showStudentForm()" class="btn-primary text-white px-12 py-6 rounded-2xl text-xl font-bold w-full md:w-auto flex items-center justify-center gap-4">
+                    <span class="text-3xl">🎓</span>
+                    רישום לתלמידים
+                </button>
+            </div>
+
+            <!-- כפתורי מורים -->
+            <div class="flex flex-col gap-4 items-center mt-8">
+                <button onclick="showPasswordDialog('teacher-view')" class="bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white px-12 py-6 rounded-2xl text-xl font-bold transition-all duration-300 hover:transform hover:-translate-y-2 hover:shadow-2xl flex items-center justify-center gap-4 border-2 border-white/20">
+                    <span class="text-3xl">🔐</span>
+                    כניסה למורים בלבד
+                </button>
+                <div class="text-center mt-4">
+                    <p class="text-white/80 text-sm">הנתונים מתעדכנים אוטומטית מהשרת בכל כניסה לעמוד</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- עמוד רישום מורים -->
+    <div id="teacherPage" class="hidden fade-in">
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 card-shadow">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-purple-800 mb-4">רישום למורים</h2>
+                        <div class="w-16 h-1 bg-gradient-to-r from-purple-500 to-cyan-500 mx-auto rounded-full"></div>
+                    </div>
+
+                    <form id="teacherForm" onsubmit="submitTeacherForm(event)">
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">שם מלא</label>
+                                <input type="text" id="teacherName" required placeholder="שם פרטי ושם משפחה" class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:outline-none transition-colors">
+                                <div class="text-xs text-gray-500 mt-1">חובה להכניס שם פרטי ושם משפחה</div>
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">מקצוע</label>
+                                <select id="teacherSubject" required class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:outline-none transition-colors" onchange="handleSubjectChange()">
+                                    <option value="">בחר מקצוע</option>
+                                    <option value="מתמטיקה">מתמטיקה</option>
+                                    <option value="אנגלית">אנגלית</option>
+                                    <option value="עברית">עברית</option>
+                                    <option value="מדעים">מדעים</option>
+                                    <option value="ביולוגיה">ביולוגיה</option>
+                                    <option value="פיזיקה">פיזיקה</option>
+                                    <option value="מסעו״ת">מסעו״ת</option>
+                                    <option value="הסטוריה">הסטוריה</option>
+                                    <option value="גיאוגרפיה">גיאוגרפיה</option>
+                                    <option value="אזרחות">אזרחות</option>
+                                    <option value="אומנות">אומנות</option>
+                                    <option value="תקשורת">תקשורת</option>
+                                    <option value="צילום">צילום</option>
+                                    <option value="אחר">אחר</option>
+                                </select>
+                                <input type="text" id="teacherSubjectOther" placeholder="הכנס מקצוע אחר..." class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:outline-none transition-colors mt-2 hidden">
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">נושא השיעור</label>
+                                <input type="text" id="teacherTopic" required placeholder="לדוגמה: חזרה על משוואות, הכנה למבחן, שברים..." class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:outline-none transition-colors">
+                                <div class="text-xs text-gray-500 mt-1">תאר בקצרה את נושא השיעור או המטרה</div>
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">כיתות (ניתן לבחור כמה כיתות)</label>
+                                <div class="bg-gray-50 border-2 border-purple-200 rounded-xl p-4 max-h-64 overflow-y-auto">
+                                    <!-- בחירות מהירות -->
+                                    <div class="mb-4 pb-4 border-b border-gray-300">
+                                        <div class="text-sm font-semibold text-gray-600 mb-2">בחירות מהירות:</div>
+                                        <div class="grid grid-cols-3 gap-2">
+                                            <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                                <input type="checkbox" class="grade-selector" data-grade="ז" class="rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                                <span class="text-sm">כל כיתות ז</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                                <input type="checkbox" class="grade-selector" data-grade="ח" class="rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                                <span class="text-sm">כל כיתות ח</span>
+                                            </label>
+                                            <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                                <input type="checkbox" class="grade-selector" data-grade="ט" class="rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                                <span class="text-sm">כל כיתות ט</span>
+                                            </label>
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- כיתות ספציפיות -->
+                                    <div class="grid grid-cols-5 gap-2">
+                                        <!-- כיתות ז -->
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ז1" class="class-checkbox grade-ז rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ז1</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ז2" class="class-checkbox grade-ז rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ז2</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ז3" class="class-checkbox grade-ז rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ז3</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ז4" class="class-checkbox grade-ז rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ז4</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ז5" class="class-checkbox grade-ז rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ז5</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ז6" class="class-checkbox grade-ז rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ז6</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ז7" class="class-checkbox grade-ז rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ז7</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ז8" class="class-checkbox grade-ז rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ז8</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ז9" class="class-checkbox grade-ז rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ז9</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ז10" class="class-checkbox grade-ז rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ז10</span>
+                                        </label>
+                                        
+                                        <!-- כיתות ח -->
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ח1" class="class-checkbox grade-ח rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ח1</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ח2" class="class-checkbox grade-ח rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ח2</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ח3" class="class-checkbox grade-ח rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ח3</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ח4" class="class-checkbox grade-ח rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ח4</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ח5" class="class-checkbox grade-ח rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ח5</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ח6" class="class-checkbox grade-ח rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ח6</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ח7" class="class-checkbox grade-ח rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ח7</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ח8" class="class-checkbox grade-ח rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ח8</span>
+                                        </label>
+                                        
+                                        <!-- כיתות ט -->
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ט1" class="class-checkbox grade-ט rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ט1</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ט2" class="class-checkbox grade-ט rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ט2</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ט3" class="class-checkbox grade-ט rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ט3</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ט4" class="class-checkbox grade-ט rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ט4</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ט5" class="class-checkbox grade-ט rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ט5</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ט6" class="class-checkbox grade-ט rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ט6</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ט7" class="class-checkbox grade-ט rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ט7</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ט8" class="class-checkbox grade-ט rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ט8</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ט9" class="class-checkbox grade-ט rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ט9</span>
+                                        </label>
+                                        <label class="flex items-center space-x-2 space-x-reverse cursor-pointer">
+                                            <input type="checkbox" name="teacherClasses" value="ט10" class="class-checkbox grade-ט rounded border-purple-300 text-purple-600 focus:ring-purple-500">
+                                            <span class="text-sm">ט10</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">תאריך</label>
+                                <input type="date" id="teacherDate" required class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:outline-none transition-colors" lang="he">
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">שעה</label>
+                                <select id="teacherTime" required class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:outline-none transition-colors">
+                                    <option value="">בחר שעה</option>
+                                    <option value="שעה 0: 07:45–08:30">שעה 0: 07:45–08:30</option>
+                                    <option value="שעה 6: 12:55–13:40">שעה 6: 12:55–13:40</option>
+                                    <option value="שעה 7: 13:40–14:25">שעה 7: 13:40–14:25</option>
+                                    <option value="שעה 8: 14:35–15:20">שעה 8: 14:35–15:20</option>
+                                </select>
+                            </div>
+
+                            <div class="flex gap-4">
+                                <button type="submit" class="btn-primary text-white px-8 py-3 rounded-xl font-bold flex-1">
+                                    שמור רישום
+                                </button>
+                                <button type="button" onclick="showHomePage()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-8 py-3 rounded-xl font-bold transition-colors">
+                                    חזור
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- עמוד רישום תלמידים -->
+    <div id="studentPage" class="hidden fade-in">
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-2xl mx-auto">
+                <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 card-shadow">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-purple-800 mb-4">רישום לתלמידים</h2>
+                        <div class="w-16 h-1 bg-gradient-to-r from-purple-500 to-cyan-500 mx-auto rounded-full"></div>
+                    </div>
+
+                    <form id="studentForm" onsubmit="submitStudentForm(event)">
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">שם מלא</label>
+                                <input type="text" id="studentName" required placeholder="שם פרטי ושם משפחה" class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:outline-none transition-colors" oninput="updateLessonOptions()">
+                                <div class="text-xs text-gray-500 mt-1">חובה להכניס שם פרטי ושם משפחה</div>
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">כיתה</label>
+                                <select id="studentClass" required class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:outline-none transition-colors" onchange="updateLessonOptions()">
+                                    <option value="">בחר כיתה</option>
+                                    <option value="ז1">ז1</option>
+                                    <option value="ז2">ז2</option>
+                                    <option value="ז3">ז3</option>
+                                    <option value="ז4">ז4</option>
+                                    <option value="ז5">ז5</option>
+                                    <option value="ז6">ז6</option>
+                                    <option value="ז7">ז7</option>
+                                    <option value="ז8">ז8</option>
+                                    <option value="ז9">ז9</option>
+                                    <option value="ז10">ז10</option>
+                                    <option value="ח1">ח1</option>
+                                    <option value="ח2">ח2</option>
+                                    <option value="ח3">ח3</option>
+                                    <option value="ח4">ח4</option>
+                                    <option value="ח5">ח5</option>
+                                    <option value="ח6">ח6</option>
+                                    <option value="ח7">ח7</option>
+                                    <option value="ח8">ח8</option>
+                                    <option value="ט1">ט1</option>
+                                    <option value="ט2">ט2</option>
+                                    <option value="ט3">ט3</option>
+                                    <option value="ט4">ט4</option>
+                                    <option value="ט5">ט5</option>
+                                    <option value="ט6">ט6</option>
+                                    <option value="ט7">ט7</option>
+                                    <option value="ט8">ט8</option>
+                                    <option value="ט9">ט9</option>
+                                    <option value="ט10">ט10</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-gray-700 font-semibold mb-2">בחירת שיעור</label>
+                                <div id="lessonsList" class="space-y-3 max-h-64 overflow-y-auto">
+                                    <!-- רשימת שיעורים תוצג כאן -->
+                                </div>
+                            </div>
+
+                            <div class="flex gap-4">
+                                <button type="submit" class="btn-primary text-white px-8 py-3 rounded-xl font-bold flex-1">
+                                    הירשם לשיעור
+                                </button>
+                                <button type="button" onclick="showHomePage()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-8 py-3 rounded-xl font-bold transition-colors">
+                                    חזור
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- עמוד צפייה למורים -->
+    <div id="teacherViewPage" class="hidden fade-in">
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-6xl mx-auto">
+                <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 card-shadow">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-purple-800 mb-4">כל השיעורים במערכת</h2>
+                        <div class="w-16 h-1 bg-gradient-to-r from-purple-500 to-cyan-500 mx-auto rounded-full"></div>
+                    </div>
+
+                    <!-- סינון לפי כיתות -->
+                    <div class="mb-8">
+                        <div class="bg-gray-50 rounded-2xl p-6">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4">סינון לפי כיתות</h3>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <button onclick="filterTeacherViewByGrade('all')" class="teacher-view-filter-btn active px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold transition-colors">
+                                    הכל
+                                </button>
+                                <button onclick="filterTeacherViewByGrade('ז')" class="teacher-view-filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">
+                                    כיתות ז
+                                </button>
+                                <button onclick="filterTeacherViewByGrade('ח')" class="teacher-view-filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">
+                                    כיתות ח
+                                </button>
+                                <button onclick="filterTeacherViewByGrade('ט')" class="teacher-view-filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">
+                                    כיתות ט
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- סטטיסטיקות -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-purple-100 p-6 rounded-2xl text-center">
+                            <div class="text-3xl mb-2">👨‍🏫</div>
+                            <div class="text-2xl font-bold text-purple-800" id="teacherViewCount">0</div>
+                            <div class="text-gray-600">שיעורים פעילים</div>
+                        </div>
+                        <div class="bg-cyan-100 p-6 rounded-2xl text-center">
+                            <div class="text-3xl mb-2">🎓</div>
+                            <div class="text-2xl font-bold text-cyan-800" id="studentViewCount">0</div>
+                            <div class="text-gray-600">תלמידים רשומים</div>
+                        </div>
+                        <div class="bg-green-100 p-6 rounded-2xl text-center">
+                            <div class="text-3xl mb-2">📊</div>
+                            <div class="text-2xl font-bold text-green-800" id="avgStudentsPerLesson">0</div>
+                            <div class="text-gray-600">ממוצע תלמידים לשיעור</div>
+                        </div>
+                    </div>
+
+                    <!-- רשימת שיעורים -->
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-4">רשימת שיעורים</h3>
+                        <div class="bg-gray-50 rounded-xl p-4 max-h-96 overflow-y-auto">
+                            <div id="teacherViewList" class="space-y-3">
+                                <!-- רשימת שיעורים תוצג כאן -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-8">
+                        <button onclick="showHomePage()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-8 py-3 rounded-xl font-bold transition-colors">
+                            חזור לעמוד הבית
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- פאנל מנהל -->
+    <div id="adminPage" class="hidden fade-in">
+        <div class="container mx-auto px-4 py-8">
+            <div class="max-w-6xl mx-auto">
+                <div class="bg-white/90 backdrop-blur-sm rounded-3xl p-8 card-shadow">
+                    <div class="text-center mb-8">
+                        <h2 class="text-3xl font-bold text-purple-800 mb-4">צפייה למורים</h2>
+                        <div class="w-16 h-1 bg-gradient-to-r from-purple-500 to-cyan-500 mx-auto rounded-full"></div>
+                    </div>
+
+                    <!-- סינון לפי כיתות -->
+                    <div class="mb-8">
+                        <div class="bg-gray-50 rounded-2xl p-6">
+                            <h3 class="text-lg font-bold text-gray-800 mb-4">סינון לפי כיתות</h3>
+                            <div class="flex flex-wrap gap-2 mb-4">
+                                <button onclick="filterByGrade('all')" class="filter-btn active px-4 py-2 rounded-lg bg-purple-600 text-white font-semibold transition-colors">
+                                    הכל
+                                </button>
+                                <button onclick="filterByGrade('ז')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">
+                                    כיתות ז
+                                </button>
+                                <button onclick="filterByGrade('ח')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">
+                                    כיתות ח
+                                </button>
+                                <button onclick="filterByGrade('ט')" class="filter-btn px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">
+                                    כיתות ט
+                                </button>
+                            </div>
+                            <div class="grid grid-cols-2 md:grid-cols-5 gap-2">
+                                <button onclick="filterByClass('ז1')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ז1</button>
+                                <button onclick="filterByClass('ז2')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ז2</button>
+                                <button onclick="filterByClass('ז3')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ז3</button>
+                                <button onclick="filterByClass('ז4')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ז4</button>
+                                <button onclick="filterByClass('ז5')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ז5</button>
+                                <button onclick="filterByClass('ז6')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ז6</button>
+                                <button onclick="filterByClass('ז7')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ז7</button>
+                                <button onclick="filterByClass('ז8')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ז8</button>
+                                <button onclick="filterByClass('ז9')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ז9</button>
+                                <button onclick="filterByClass('ז10')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ז10</button>
+                                <button onclick="filterByClass('ח1')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ח1</button>
+                                <button onclick="filterByClass('ח2')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ח2</button>
+                                <button onclick="filterByClass('ח3')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ח3</button>
+                                <button onclick="filterByClass('ח4')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ח4</button>
+                                <button onclick="filterByClass('ח5')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ח5</button>
+                                <button onclick="filterByClass('ח6')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ח6</button>
+                                <button onclick="filterByClass('ח7')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ח7</button>
+                                <button onclick="filterByClass('ח8')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ח8</button>
+                                <button onclick="filterByClass('ט1')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ט1</button>
+                                <button onclick="filterByClass('ט2')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ט2</button>
+                                <button onclick="filterByClass('ט3')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ט3</button>
+                                <button onclick="filterByClass('ט4')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ט4</button>
+                                <button onclick="filterByClass('ט5')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ט5</button>
+                                <button onclick="filterByClass('ט6')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ט6</button>
+                                <button onclick="filterByClass('ט7')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ט7</button>
+                                <button onclick="filterByClass('ט8')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ט8</button>
+                                <button onclick="filterByClass('ט9')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ט9</button>
+                                <button onclick="filterByClass('ט10')" class="class-filter-btn px-3 py-2 rounded-lg bg-gray-200 text-gray-700 text-sm hover:bg-gray-300 transition-colors">ט10</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- סטטיסטיקות -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-purple-100 p-6 rounded-2xl text-center">
+                            <div class="text-3xl mb-2">👨‍🏫</div>
+                            <div class="text-2xl font-bold text-purple-800" id="teacherCount">0</div>
+                            <div class="text-gray-600">מורים רשומים</div>
+                        </div>
+                        <div class="bg-cyan-100 p-6 rounded-2xl text-center">
+                            <div class="text-3xl mb-2">🎓</div>
+                            <div class="text-2xl font-bold text-cyan-800" id="studentCount">0</div>
+                            <div class="text-gray-600">תלמידים רשומים</div>
+                        </div>
+                        <div class="bg-green-100 p-6 rounded-2xl text-center">
+                            <div class="text-3xl mb-2">📅</div>
+                            <div class="text-2xl font-bold text-green-800" id="lessonCount">0</div>
+                            <div class="text-gray-600">שיעורים פעילים</div>
+                        </div>
+                    </div>
+
+                    <!-- טבלאות נתונים -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- רשימת מורים -->
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">רשימת מורים</h3>
+                            <div class="bg-gray-50 rounded-xl p-4 max-h-96 overflow-y-auto">
+                                <div id="teachersList" class="space-y-2">
+                                    <!-- רשימת מורים תוצג כאן -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- רשימת תלמידים -->
+                        <div>
+                            <h3 class="text-xl font-bold text-gray-800 mb-4">רשימת תלמידים</h3>
+                            <div class="bg-gray-50 rounded-xl p-4 max-h-96 overflow-y-auto">
+                                <div id="studentsList" class="space-y-2">
+                                    <!-- רשימת תלמידים תוצג כאן -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- כפתורי מחיקה -->
+                    <div class="mt-8 mb-8">
+                        <div class="bg-red-50 border-2 border-red-200 rounded-2xl p-6">
+                            <h3 class="text-lg font-bold text-red-800 mb-4 flex items-center gap-2">
+                                <span>🗑️</span>
+                                ניהול מחיקת שיעורים
+                            </h3>
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <button onclick="showDeleteDialog('past')" class="bg-orange-500 hover:bg-orange-600 text-white px-4 py-3 rounded-xl font-semibold transition-colors">
+                                    מחק שיעורים שעברו
+                                </button>
+                                <button onclick="showDeleteDialog('future')" class="bg-red-500 hover:bg-red-600 text-white px-4 py-3 rounded-xl font-semibold transition-colors">
+                                    מחק שיעורים עתידיים
+                                </button>
+                                <button onclick="showDeleteDialog('all')" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-3 rounded-xl font-semibold transition-colors">
+                                    איפוס מלא
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-center mt-8">
+                        <button onclick="showHomePage()" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-8 py-3 rounded-xl font-bold transition-colors">
+                            חזור לעמוד הבית
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- הודעות -->
+    <div id="messageBox" class="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 hidden">
+        <div class="bg-green-500 text-white px-8 py-4 rounded-xl shadow-2xl text-center">
+            <span id="messageText"></span>
+        </div>
+    </div>
+
+    <!-- ספינר -->
+    <div id="loadingSpinner" class="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center hidden">
+        <div class="bg-white rounded-2xl p-8 shadow-2xl text-center">
+            <div class="spinner mb-4 mx-auto"></div>
+            <div class="text-lg font-semibold text-gray-800">מבצע רישום נא להמתין</div>
+        </div>
+    </div>
+
+    <script>
+        // נתונים מקומיים + Firebase Realtime Database
+        let teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
+        let students = JSON.parse(localStorage.getItem('students') || '[]');
+        
+        // הגדרות Firebase
+        // כדי להשתמש ב-Firebase, יש ליצור פרויקט Firebase ולהחליף את הערכים הבאים:
+        // 1. לך ל-https://console.firebase.google.com/
+        // 2. צור פרויקט חדש או בחר פרויקט קיים
+        // 3. הוסף אפליקציית Web
+        // 4. העתק את פרטי הקונפיגורציה והחלף את הערכים למטה
+        // 5. הפעל את Realtime Database בפרויקט שלך
+        const firebaseConfig = {
+            apiKey: "AIzaSyA03rd5NOkU2HpTtJ2R8o7C785HQur0osQ",
+            authDomain: "school-teachers-system.firebaseapp.com",
+            databaseURL: "https://school-teachers-system-default-rtdb.europe-west1.firebasedatabase.app",
+            projectId: "school-teachers-system",
+            storageBucket: "school-teachers-system.firebasestorage.app",
+            messagingSenderId: "560060328587",
+            appId: "1:560060328587:web:6e742ce4c83251df69428e",
+            measurementId: "G-9EYH986KCB"
+        };
+        
+        // אתחול Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        // משתנה לבדיקה אם הנתונים נטענו מהשרת
+        let dataLoadedFromServer = false;
+        
+        // פונקציה לשליחת נתונים ל-Firebase
+        async function saveToFirebase(path, data) {
+            try {
+                await database.ref(path).push(data);
+                console.log('נתונים נשמרו בהצלחה ב-Firebase');
+                return true;
+            } catch (error) {
+                console.error('שגיאה בשמירה ב-Firebase:', error);
+                // הצגת הודעת שגיאה למשתמש
+                if (error.code === 'PERMISSION_DENIED') {
+                    showMessage('אין הרשאה לשמור נתונים. אנא בדוק את הגדרות Firebase.', 'error');
+                } else if (error.code === 'UNAVAILABLE') {
+                    showMessage('השרת לא זמין כרגע. הנתונים נשמרו מקומית.', 'error');
+                } else {
+                    showMessage('שגיאה בשמירת הנתונים. הנתונים נשמרו מקומית.', 'error');
+                }
+                return false;
+            }
+        }
+        
+        // פונקציה לטעינת נתונים מ-Firebase
+        async function loadDataFromFirebase() {
+            try {
+                showMessage('מעדכן נתונים מהשרת...');
+                
+                // טעינת מורים
+                const teachersSnapshot = await database.ref('teachers').once('value');
+                if (teachersSnapshot.exists()) {
+                    const teachersData = teachersSnapshot.val();
+                    const serverTeachers = Object.keys(teachersData).map(key => {
+                        const teacher = teachersData[key];
+                        return {
+                            id: teacher.id || generateUniqueId(teacher.name, teacher.date, teacher.time),
+                            name: teacher.name || '',
+                            subject: teacher.subject || '',
+                            topic: teacher.topic || '',
+                            classes: teacher.classes || [],
+                            date: teacher.date || '',
+                            time: teacher.time || '',
+                            timestamp: teacher.timestamp || ''
+                        };
+                    }).filter(teacher => teacher.name && teacher.date);
+                    
+                    // החלפה מלאה של נתוני המורים
+                    teachers = serverTeachers;
+                    localStorage.setItem('teachers', JSON.stringify(teachers));
+                }
+                
+                // טעינת תלמידים
+                const studentsSnapshot = await database.ref('students').once('value');
+                if (studentsSnapshot.exists()) {
+                    const studentsData = studentsSnapshot.val();
+                    const serverStudents = Object.keys(studentsData).map(key => {
+                        const student = studentsData[key];
+                        return {
+                            id: student.id || Date.now() + Math.random() * 10000,
+                            name: student.name || '',
+                            class: student.class || '',
+                            lesson: student.lesson || '',
+                            teacherId: student.teacherId || null,
+                            timestamp: student.timestamp || ''
+                        };
+                    }).filter(student => student.name && student.teacherId);
+                    
+                    // החלפה מלאה של נתוני התלמידים
+                    students = serverStudents;
+                    localStorage.setItem('students', JSON.stringify(students));
+                }
+                
+                dataLoadedFromServer = true;
+                showMessage('נתונים נטענו בהצלחה מהשרת!');
+                
+                // עדכון התצוגות אם נמצאים בעמודים הרלוונטיים
+                if (!document.getElementById('homePage').classList.contains('hidden')) {
+                    // אם נמצאים בעמוד הבית, עדכון רשימת השיעורים לתלמידים
+                    updateLessonOptions();
+                } else if (!document.getElementById('teacherViewPage').classList.contains('hidden')) {
+                    updateTeacherViewPage();
+                } else if (!document.getElementById('adminPage').classList.contains('hidden')) {
+                    updateAdminPanel();
+                }
+                
+            } catch (error) {
+                console.error('שגיאה בטעינת נתונים מ-Firebase:', error);
+                // הצגת הודעת שגיאה ספציפית
+                if (error.code === 'PERMISSION_DENIED') {
+                    showMessage('אין הרשאה לטעון נתונים. משתמש בנתונים מקומיים.', 'error');
+                } else if (error.code === 'UNAVAILABLE') {
+                    showMessage('השרת לא זמין כרגע. משתמש בנתונים מקומיים.', 'error');
+                } else {
+                    showMessage('לא ניתן לטעון נתונים מהשרת, משתמש בנתונים מקומיים', 'error');
+                }
+            }
+        }
+        
+        // פונקציה ליצירת ID ייחודי וקבוע
+        function generateUniqueId(name, date, time) {
+            const str = `${name}-${date}-${time}`;
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                const char = str.charCodeAt(i);
+                hash = ((hash << 5) - hash) + char;
+                hash = hash & hash; // המרה ל-32bit integer
+            }
+            return Math.abs(hash);
+        }
+        
+        // פונקציה למציאת ID מורה לפי פרטים
+        function findTeacherIdByDetails(teacherName, subject, date, time) {
+            const teacher = teachers.find(t => 
+                t.name === teacherName &&
+                t.subject === subject &&
+                t.date === date &&
+                t.time === time
+            );
+            return teacher ? teacher.id : null;
+        }
+
+        // פונקציות ניווט
+        function showHomePage() {
+            hideAllPages();
+            document.getElementById('homePage').classList.remove('hidden');
+        }
+
+        function showTeacherForm() {
+            hideAllPages();
+            document.getElementById('teacherPage').classList.remove('hidden');
+        }
+
+        function showStudentForm() {
+            hideAllPages();
+            document.getElementById('studentPage').classList.remove('hidden');
+            // טעינת נתונים מהשרת לפני הצגת השיעורים
+            loadDataFromFirebase().then(() => {
+                updateLessonOptions();
+            });
+        }
+
+        function showAdminPanel() {
+            hideAllPages();
+            document.getElementById('adminPage').classList.remove('hidden');
+            updateAdminPanel();
+        }
+
+        // הצגת דיאלוג סיסמה
+        function showPasswordDialog(type) {
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+            
+            const dialog = document.createElement('div');
+            dialog.className = 'bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl';
+            
+            let title, icon;
+            if (type === 'teacher') {
+                title = 'רישום למורים';
+                icon = '👨‍🏫';
+            } else {
+                title = 'כניסה למורים בלבד';
+                icon = '🔐';
+            }
+            
+            dialog.innerHTML = `
+                <div class="text-center">
+                    <div class="text-4xl mb-4">${icon}</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">${title}</h3>
+                    <p class="text-gray-600 mb-6">יש להכניס סיסמה לכניסה</p>
+                    <div class="mb-6">
+                        <input type="password" id="passwordInput" placeholder="הכנס סיסמה" 
+                               class="w-full px-4 py-3 border-2 border-purple-200 rounded-xl focus:border-purple-500 focus:outline-none transition-colors text-center text-lg">
+                        <div id="passwordError" class="text-red-600 text-sm mt-2 hidden">סיסמה שגויה!</div>
+                    </div>
+                    <div class="flex gap-4">
+                        <button id="passwordSubmitBtn" class="btn-primary text-white px-6 py-3 rounded-xl font-bold flex-1">
+                            כניסה
+                        </button>
+                        <button id="passwordCancelBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-xl font-bold flex-1 transition-colors">
+                            ביטול
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+            
+            const passwordInput = document.getElementById('passwordInput');
+            const passwordError = document.getElementById('passwordError');
+            
+            // פוקוס על שדה הסיסמה
+            passwordInput.focus();
+            
+            // פונקציה לבדיקת סיסמה
+            function checkPassword() {
+                const password = passwordInput.value;
+                if (password === '2025') {
+                    document.body.removeChild(overlay);
+                    if (type === 'teacher') {
+                        showTeacherForm();
+                    } else {
+                        // טעינת נתונים מהשרת ואז מעבר לפאנל מנהל
+                        loadDataFromFirebase().then(() => {
+                            showAdminPanel();
+                        });
+                    }
+                } else {
+                    passwordError.classList.remove('hidden');
+                    passwordInput.value = '';
+                    passwordInput.focus();
+                    
+                    // הסתרת הודעת השגיאה אחרי 3 שניות
+                    setTimeout(() => {
+                        passwordError.classList.add('hidden');
+                    }, 3000);
+                }
+            }
+            
+            // הוספת מאזינים
+            document.getElementById('passwordSubmitBtn').onclick = checkPassword;
+            
+            document.getElementById('passwordCancelBtn').onclick = () => {
+                document.body.removeChild(overlay);
+            };
+            
+            // כניסה בלחיצה על Enter
+            passwordInput.addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    checkPassword();
+                }
+            });
+            
+            // סגירה בלחיצה על הרקע
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                }
+            };
+        }
+
+        function hideAllPages() {
+            document.getElementById('homePage').classList.add('hidden');
+            document.getElementById('teacherPage').classList.add('hidden');
+            document.getElementById('studentPage').classList.add('hidden');
+            document.getElementById('teacherViewPage').classList.add('hidden');
+            document.getElementById('adminPage').classList.add('hidden');
+        }
+
+
+
+        // טיפול בבחירת מקצוע
+        function handleSubjectChange() {
+            const subjectSelect = document.getElementById('teacherSubject');
+            const otherInput = document.getElementById('teacherSubjectOther');
+            
+            if (subjectSelect.value === 'אחר') {
+                otherInput.classList.remove('hidden');
+                otherInput.required = true;
+            } else {
+                otherInput.classList.add('hidden');
+                otherInput.required = false;
+                otherInput.value = '';
+            }
+        }
+
+        // טיפול בבחירת כיתות
+        document.addEventListener('DOMContentLoaded', function() {
+            // בחירות מהירות לכל השכבה
+            document.querySelectorAll('.grade-selector').forEach(selector => {
+                selector.addEventListener('change', function() {
+                    const grade = this.dataset.grade;
+                    const gradeCheckboxes = document.querySelectorAll(`.grade-${grade}`);
+                    
+                    gradeCheckboxes.forEach(checkbox => {
+                        checkbox.checked = this.checked;
+                    });
+                });
+            });
+
+            // עדכון בחירות מהירות כשמשנים כיתות ספציפיות
+            document.querySelectorAll('.class-checkbox').forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const grade = this.value.charAt(0); // ז, ח, או ט
+                    const gradeCheckboxes = document.querySelectorAll(`.grade-${grade}`);
+                    const gradeSelector = document.querySelector(`.grade-selector[data-grade="${grade}"]`);
+                    
+                    // בדיקה אם כל הכיתות של השכבה מסומנות
+                    const allChecked = Array.from(gradeCheckboxes).every(cb => cb.checked);
+                    const noneChecked = Array.from(gradeCheckboxes).every(cb => !cb.checked);
+                    
+                    if (allChecked) {
+                        gradeSelector.checked = true;
+                        gradeSelector.indeterminate = false;
+                    } else if (noneChecked) {
+                        gradeSelector.checked = false;
+                        gradeSelector.indeterminate = false;
+                    } else {
+                        gradeSelector.checked = false;
+                        gradeSelector.indeterminate = true;
+                    }
+                });
+            });
+            
+            // הגדרת תאריך מינימלי להיום וטעינת נתונים
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('teacherDate').min = today;
+            
+            // טעינת נתונים מגוגל שיטס בהפעלה - רק אם אין נתונים מקומיים
+            if (teachers.length === 0 && students.length === 0) {
+                loadDataFromFirebase();
+            }
+        });
+
+        // שליחת טופס מורים
+        function submitTeacherForm(event) {
+            event.preventDefault();
+            
+            const teacherName = document.getElementById('teacherName').value.trim();
+            
+            // בדיקת שם מלא (שם פרטי ושם משפחה)
+            const nameParts = teacherName.split(' ').filter(part => part.length > 0);
+            if (nameParts.length < 2) {
+                showMessage('יש להכניס שם מלא (שם פרטי ושם משפחה)!', 'error');
+                return;
+            }
+            
+            const subjectSelect = document.getElementById('teacherSubject');
+            const otherInput = document.getElementById('teacherSubjectOther');
+            const finalSubject = subjectSelect.value === 'אחר' ? otherInput.value : subjectSelect.value;
+            const teacherTopic = document.getElementById('teacherTopic').value.trim();
+            
+            // איסוף כיתות נבחרות
+            const selectedClasses = [];
+            document.querySelectorAll('input[name="teacherClasses"]:checked').forEach(checkbox => {
+                selectedClasses.push(checkbox.value);
+            });
+            
+            if (selectedClasses.length === 0) {
+                showMessage('יש לבחור לפחות כיתה אחת!', 'error');
+                return;
+            }
+            
+            const selectedDate = document.getElementById('teacherDate').value;
+            const selectedTime = document.getElementById('teacherTime').value;
+            
+            // בדיקה אם השעה כבר עברה
+            const timeCheck = checkIfTimePassed(selectedDate, selectedTime);
+            if (timeCheck.hasPassed) {
+                showMessage(`לא ניתן לרשום לשעה שכבר עברה! השעה ${timeCheck.timeText} כבר חלפה.`, 'error');
+                return;
+            }
+            
+            // בדיקת רישום כפול
+            const duplicateCheck = checkTeacherDuplicate(teacherName, selectedDate, selectedTime);
+            
+            if (duplicateCheck.isDuplicate) {
+                if (duplicateCheck.sameTime) {
+                    showMessage('כבר נרשמת לאותו יום ושעה!', 'error');
+                    return;
+                } else {
+                    // אם נרשמה לאותו יום בשעה אחרת - הצגת הודעה עם אפשרות להמשיך
+                    showConfirmationDialog(
+                        `כבר נרשמת לתאריך ${formatDateHebrew(selectedDate)} בשעה אחרת. האם להמשיך בכל זאת?`,
+                        () => {
+                            // אם המשתמש בחר להמשיך
+                            saveTeacher();
+                        }
+                    );
+                    return;
+                }
+            }
+            
+            // אם אין בעיה - שמירה רגילה
+            saveTeacher();
+            
+            async function saveTeacher() {
+                // הצגת ספינר
+                showSpinner();
+                
+                try {
+                    const teacher = {
+                        id: Date.now(),
+                        name: teacherName,
+                        subject: finalSubject,
+                        topic: teacherTopic,
+                        classes: selectedClasses,
+                        date: selectedDate,
+                        time: selectedTime
+                    };
+
+                    // שמירה מקומית
+                    teachers.push(teacher);
+                    localStorage.setItem('teachers', JSON.stringify(teachers));
+                    
+                    // שליחה ל-Firebase
+                    const firebaseData = {
+                        id: teacher.id,
+                        timestamp: new Date().toLocaleString('he-IL'),
+                        name: teacherName,
+                        subject: finalSubject,
+                        topic: teacherTopic,
+                        classes: selectedClasses,
+                        date: selectedDate,
+                        time: selectedTime
+                    };
+                    
+                    const firebaseSent = await saveToFirebase('teachers', firebaseData);
+                    
+                    // הסתרת ספינר
+                    hideSpinner();
+                    
+                    showMessage('רישום המורה בוצע בהצלחה!');
+                    
+                    // איפוס הטופס
+                    document.getElementById('teacherForm').reset();
+                    handleSubjectChange(); // איפוס תיבת המקצוע האחר
+                    
+                    // איפוס תיבות הסימון
+                    document.querySelectorAll('input[name="teacherClasses"]').forEach(checkbox => {
+                        checkbox.checked = false;
+                    });
+                    document.querySelectorAll('.grade-selector').forEach(selector => {
+                        selector.checked = false;
+                        selector.indeterminate = false;
+                    });
+                    
+                    // הצגת דיאלוג רישום נוסף
+                    setTimeout(() => {
+                        showAdditionalRegistrationDialog();
+                    }, 1500);
+                } catch (error) {
+                    // הסתרת ספינר במקרה של שגיאה
+                    hideSpinner();
+                    showMessage('אירעה שגיאה ברישום. אנא נסה שוב.', 'error');
+                    console.error('שגיאה ברישום מורה:', error);
+                }
+            }
+        }
+
+        // שליחת טופס תלמידים
+        async function submitStudentForm(event) {
+            event.preventDefault();
+            
+            const selectedLesson = document.querySelector('input[name="selectedLesson"]:checked');
+            if (!selectedLesson) {
+                showMessage('יש לבחור שיעור!', 'error');
+                return;
+            }
+            
+            const studentName = document.getElementById('studentName').value.trim();
+            const studentClass = document.getElementById('studentClass').value;
+            
+            // בדיקת שם מלא (שם פרטי ושם משפחה)
+            const nameParts = studentName.split(' ').filter(part => part.length > 0);
+            if (nameParts.length < 2) {
+                showMessage('יש להכניס שם מלא (שם פרטי ושם משפחה)!', 'error');
+                return;
+            }
+            const teacherId = selectedLesson.dataset.teacherId;
+            
+            // בדיקה נוספת לפני השמירה
+            const teacher = teachers.find(t => t.id == teacherId);
+            if (!teacher) {
+                showMessage('שגיאה: שיעור לא נמצא!', 'error');
+                return;
+            }
+            
+            const registrationCheck = canStudentRegister(studentClass, teacher.classes, teacherId, studentName);
+            if (!registrationCheck.canRegister) {
+                showMessage(`לא ניתן להירשם: ${registrationCheck.reason}`, 'error');
+                return;
+            }
+            
+            // בדיקה אם השיעור מלא
+            const registeredStudents = students.filter(student => student.teacherId == teacherId).length;
+            if (registeredStudents >= 20) {
+                showMessage('השיעור מלא! לא ניתן להירשם - הגיעו למספר המקסימלי של 20 תלמידים.', 'error');
+                return;
+            }
+            
+            // הצגת ספינר
+            showSpinner();
+            
+            try {
+                const student = {
+                    id: Date.now(),
+                    name: studentName,
+                    class: studentClass,
+                    lesson: selectedLesson.value,
+                    teacherId: teacherId
+                };
+
+                // שמירה מקומית
+                students.push(student);
+                localStorage.setItem('students', JSON.stringify(students));
+                
+                // שליחה ל-Firebase
+                const firebaseData = {
+                    id: student.id,
+                    timestamp: new Date().toLocaleString('he-IL'),
+                    name: studentName,
+                    class: studentClass,
+                    lesson: selectedLesson.value,
+                    teacherId: teacherId,
+                    teacherName: teacher.name,
+                    subject: teacher.subject,
+                    lessonDate: teacher.date,
+                    lessonTime: teacher.time
+                };
+                
+                const firebaseSent = await saveToFirebase('students', firebaseData);
+                
+                // הסתרת ספינר
+                hideSpinner();
+                
+                showMessage('נרשמת בהצלחה!');
+                
+                document.getElementById('studentForm').reset();
+                updateLessonOptions(); // עדכון המדים
+                
+                setTimeout(() => {
+                    showHomePage();
+                }, 2000);
+            } catch (error) {
+                // הסתרת ספינר במקרה של שגיאה
+                hideSpinner();
+                showMessage('אירעה שגיאה ברישום. אנא נסה שוב.', 'error');
+                console.error('שגיאה ברישום תלמיד:', error);
+            }
+        }
+
+        // פונקציה להמרת תאריך לפורמט עברי
+        function formatDateHebrew(dateString) {
+            if (!dateString) return '';
+            const date = new Date(dateString);
+            const day = String(date.getDate()).padStart(2, '0');
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const year = date.getFullYear();
+            return `${day}/${month}/${year}`;
+        }
+
+        // פונקציה לקיצור הצגת כיתות
+        function formatClassesDisplay(classes) {
+            if (!classes || classes.length === 0) return '';
+            
+            // בדיקה אם יש כל כיתות ז
+            const gradeZ = classes.filter(c => c.startsWith('ז'));
+            const allGradeZ = ['ז1', 'ז2', 'ז3', 'ז4', 'ז5', 'ז6', 'ז7', 'ז8', 'ז9', 'ז10'];
+            const hasAllZ = allGradeZ.every(grade => gradeZ.includes(grade));
+            
+            // בדיקה אם יש כל כיתות ח
+            const gradeH = classes.filter(c => c.startsWith('ח'));
+            const allGradeH = ['ח1', 'ח2', 'ח3', 'ח4', 'ח5', 'ח6', 'ח7', 'ח8'];
+            const hasAllH = allGradeH.every(grade => gradeH.includes(grade));
+            
+            // בדיקה אם יש כל כיתות ט
+            const gradeT = classes.filter(c => c.startsWith('ט'));
+            const allGradeT = ['ט1', 'ט2', 'ט3', 'ט4', 'ט5', 'ט6', 'ט7', 'ט8', 'ט9', 'ט10'];
+            const hasAllT = allGradeT.every(grade => gradeT.includes(grade));
+            
+            let result = [];
+            let remainingClasses = [...classes];
+            
+            if (hasAllZ) {
+                result.push('כל כיתות ז');
+                remainingClasses = remainingClasses.filter(c => !c.startsWith('ז'));
+            }
+            
+            if (hasAllH) {
+                result.push('כל כיתות ח');
+                remainingClasses = remainingClasses.filter(c => !c.startsWith('ח'));
+            }
+            
+            if (hasAllT) {
+                result.push('כל כיתות ט');
+                remainingClasses = remainingClasses.filter(c => !c.startsWith('ט'));
+            }
+            
+            // הוספת כיתות בודדות שנותרו
+            if (remainingClasses.length > 0) {
+                result = result.concat(remainingClasses);
+            }
+            
+            return result.join(', ');
+        }
+
+        // בדיקה אם תלמיד יכול להירשם לשיעור
+        function canStudentRegister(studentClass, teacherClasses, teacherId, studentName) {
+            // בדיקה אם התלמיד כבר רשום לשיעור זה (שם וכיתה)
+            const alreadyRegistered = students.some(student => 
+                student.name === studentName && student.class === studentClass && student.teacherId == teacherId
+            );
+            
+            if (alreadyRegistered) {
+                return { canRegister: false, reason: 'כבר נרשמת לשיעור זה' };
+            }
+            
+            // בדיקה אם התלמיד רשום לשיעור אחר באותו זמן
+            const currentTeacher = teachers.find(t => t.id == teacherId);
+            if (currentTeacher) {
+                const conflictingRegistration = students.find(student => {
+                    if (student.name === studentName && student.class === studentClass && student.teacherId != teacherId) {
+                        const otherTeacher = teachers.find(t => t.id == student.teacherId);
+                        return otherTeacher && otherTeacher.date === currentTeacher.date && otherTeacher.time === currentTeacher.time;
+                    }
+                    return false;
+                });
+                
+                if (conflictingRegistration) {
+                    const conflictTeacher = teachers.find(t => t.id == conflictingRegistration.teacherId);
+                    return { 
+                        canRegister: false, 
+                        reason: `כבר נרשמת ל${conflictTeacher.subject} באותו זמן` 
+                    };
+                }
+            }
+            
+            // בדיקה אם הכיתה של התלמיד מתאימה לשיעור
+            const isClassMatch = teacherClasses.includes(studentClass);
+            
+            if (!isClassMatch) {
+                return { canRegister: false, reason: 'השיעור לא מיועד לכיתה שלך' };
+            }
+            
+            return { canRegister: true };
+        }
+
+        // עדכון אפשרויות שיעורים
+        function updateLessonOptions() {
+            const lessonsList = document.getElementById('lessonsList');
+            const studentClass = document.getElementById('studentClass').value;
+            const studentName = document.getElementById('studentName').value;
+            
+            lessonsList.innerHTML = '';
+            
+            if (teachers.length === 0) {
+                lessonsList.innerHTML = '<div class="text-gray-500 text-center py-4">אין שיעורים זמינים כרגע</div>';
+                return;
+            }
+            
+            if (!studentClass) {
+                lessonsList.innerHTML = '<div class="text-gray-500 text-center py-4">יש לבחור כיתה תחילה</div>';
+                return;
+            }
+            
+            // סינון מורים שמלמדים את הכיתה של התלמיד ושהמפגש עתידי
+            const today = new Date();
+            today.setHours(0, 0, 0, 0); // איפוס השעה להשוואה נכונה
+            
+            const relevantTeachers = teachers.filter(teacher => {
+                const lessonDate = new Date(teacher.date);
+                lessonDate.setHours(0, 0, 0, 0);
+                return teacher.classes.includes(studentClass) && lessonDate >= today;
+            });
+            
+            if (relevantTeachers.length === 0) {
+                lessonsList.innerHTML = '<div class="text-gray-500 text-center py-4">אין שיעורים עתידיים זמינים לכיתה שלך כרגע</div>';
+                return;
+            }
+            
+            relevantTeachers.forEach(teacher => {
+                // ספירת תלמידים רשומים לשיעור זה
+                const registeredStudents = students.filter(student => student.teacherId == teacher.id).length;
+                const maxStudents = 20;
+                const isFullyBooked = registeredStudents >= maxStudents;
+                
+                // בדיקה אם התלמיד יכול להירשם
+                const registrationCheck = canStudentRegister(studentClass, teacher.classes, teacher.id, studentName);
+                const canRegister = registrationCheck.canRegister && !isFullyBooked;
+                
+                const classesText = formatClassesDisplay(teacher.classes);
+                const formattedDate = formatDateHebrew(teacher.date);
+                
+                const lessonDiv = document.createElement('div');
+                lessonDiv.className = `border-2 rounded-xl p-4 transition-all ${
+                    !canRegister ? 'border-gray-200 bg-gray-50 opacity-60' : 
+                    'border-purple-200 bg-white hover:border-purple-400 cursor-pointer'
+                }`;
+                
+                let statusMessage = '';
+                if (isFullyBooked) {
+                    statusMessage = '<span class="text-red-600 text-sm font-semibold">מלא</span>';
+                } else if (!registrationCheck.canRegister) {
+                    statusMessage = `<span class="text-orange-600 text-sm font-semibold">${registrationCheck.reason}</span>`;
+                } else if (registeredStudents >= 18) {
+                    statusMessage = '<span class="text-orange-600 text-sm font-semibold">כמעט מלא</span>';
+                }
+                
+                lessonDiv.innerHTML = `
+                    <label class="flex items-start space-x-3 space-x-reverse ${canRegister ? 'cursor-pointer' : 'cursor-not-allowed'}">
+                        <input type="radio" name="selectedLesson" value="${teacher.name} - ${teacher.subject} - ${teacher.topic || ''} - ${classesText} - ${formattedDate} - ${teacher.time}" 
+                               data-teacher-id="${teacher.id}" class="mt-1 text-purple-600 focus:ring-purple-500" ${!canRegister ? 'disabled' : ''}>
+                        <div class="flex-1">
+                            <div class="font-semibold text-gray-800 mb-1">${teacher.name} - ${teacher.subject}</div>
+                            ${teacher.topic ? `<div class="text-sm text-purple-600 mb-2 font-medium">${teacher.topic}</div>` : ''}
+                            <div class="text-sm text-gray-600 mb-2">${classesText}</div>
+                            <div class="text-sm text-gray-600 mb-3">${formattedDate} - ${teacher.time}</div>
+                            
+                            <!-- מד תלמידים -->
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1">
+                                    <div class="flex justify-between text-xs text-gray-600 mb-1">
+                                        <span>תלמידים רשומים</span>
+                                        <span>${registeredStudents}/${maxStudents}</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-2">
+                                        <div class="h-2 rounded-full transition-all duration-300 ${
+                                            registeredStudents === 0 ? 'bg-gray-300' :
+                                            registeredStudents < 15 ? 'bg-green-500' :
+                                            registeredStudents < 18 ? 'bg-yellow-500' :
+                                            registeredStudents < 20 ? 'bg-orange-500' : 'bg-red-500'
+                                        }" style="width: ${(registeredStudents / maxStudents) * 100}%"></div>
+                                    </div>
+                                </div>
+                                ${statusMessage}
+                            </div>
+                        </div>
+                    </label>
+                `;
+                
+                lessonsList.appendChild(lessonDiv);
+            });
+        }
+
+        // משתנה לשמירת הסינון הנוכחי
+        let currentFilter = 'all';
+        let currentTeacherViewFilter = 'all';
+
+        // עדכון עמוד צפייה למורים
+        function updateTeacherViewPage() {
+            // עדכון מונים - רק מפגשים עתידיים
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const futureTeachers = teachers.filter(teacher => {
+                const lessonDate = new Date(teacher.date);
+                lessonDate.setHours(0, 0, 0, 0);
+                return lessonDate >= today;
+            });
+            
+            const futureStudents = students.filter(student => {
+                const teacher = teachers.find(t => t.id == student.teacherId);
+                if (!teacher) return false;
+                const lessonDate = new Date(teacher.date);
+                lessonDate.setHours(0, 0, 0, 0);
+                return lessonDate >= today;
+            });
+            
+            document.getElementById('teacherViewCount').textContent = futureTeachers.length;
+            document.getElementById('studentViewCount').textContent = futureStudents.length;
+            
+            // חישוב ממוצע תלמידים לשיעור
+            const avgStudents = futureTeachers.length > 0 ? 
+                Math.round(futureStudents.length / futureTeachers.length * 10) / 10 : 0;
+            document.getElementById('avgStudentsPerLesson').textContent = avgStudents;
+
+            // איפוס הסינון
+            currentTeacherViewFilter = 'all';
+            updateTeacherViewFilterButtons();
+            displayTeacherViewLessons();
+        }
+
+        // סינון לפי שכבה בעמוד צפייה למורים
+        function filterTeacherViewByGrade(grade) {
+            currentTeacherViewFilter = grade;
+            updateTeacherViewFilterButtons();
+            displayTeacherViewLessons();
+        }
+
+        // עדכון כפתורי סינון בעמוד צפייה למורים
+        function updateTeacherViewFilterButtons() {
+            document.querySelectorAll('.teacher-view-filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-purple-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            
+            const activeBtn = document.querySelector(`.teacher-view-filter-btn[onclick="filterTeacherViewByGrade('${currentTeacherViewFilter}')"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active', 'bg-purple-600', 'text-white');
+                activeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+            }
+        }
+
+        // הצגת שיעורים מסוננים בעמוד צפייה למורים
+        function displayTeacherViewLessons() {
+            const teacherViewList = document.getElementById('teacherViewList');
+            teacherViewList.innerHTML = '';
+            
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let filteredTeachers = teachers.filter(teacher => {
+                const lessonDate = new Date(teacher.date);
+                lessonDate.setHours(0, 0, 0, 0);
+                return lessonDate >= today;
+            });
+            
+            if (currentTeacherViewFilter !== 'all') {
+                filteredTeachers = filteredTeachers.filter(teacher => {
+                    return teacher.classes.some(cls => cls.startsWith(currentTeacherViewFilter));
+                });
+            }
+            
+            if (filteredTeachers.length === 0) {
+                teacherViewList.innerHTML = '<div class="text-gray-500 text-center py-4">אין שיעורים המתאימים לסינון</div>';
+                return;
+            }
+            
+            filteredTeachers.forEach(teacher => {
+                const registeredStudents = students.filter(student => student.teacherId == teacher.id).length;
+                const classesText = formatClassesDisplay(teacher.classes);
+                const formattedDate = formatDateHebrew(teacher.date);
+                
+                const div = document.createElement('div');
+                div.className = 'bg-white p-4 rounded-xl border border-purple-200 shadow-sm';
+                
+                div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="font-bold text-purple-800 text-lg mb-2">${teacher.name} - ${teacher.subject}</div>
+                            ${teacher.topic ? `<div class="text-purple-600 font-medium mb-2">${teacher.topic}</div>` : ''}
+                            <div class="text-gray-600 mb-2">${classesText}</div>
+                            <div class="text-gray-600 mb-3">${formattedDate} - ${teacher.time}</div>
+                            
+                            <!-- מד תלמידים -->
+                            <div class="flex items-center gap-3">
+                                <div class="flex-1">
+                                    <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                        <span>תלמידים רשומים</span>
+                                        <span>${registeredStudents}/20</span>
+                                    </div>
+                                    <div class="w-full bg-gray-200 rounded-full h-3">
+                                        <div class="h-3 rounded-full transition-all duration-300 ${
+                                            registeredStudents === 0 ? 'bg-gray-300' :
+                                            registeredStudents < 15 ? 'bg-green-500' :
+                                            registeredStudents < 18 ? 'bg-yellow-500' :
+                                            registeredStudents < 20 ? 'bg-orange-500' : 'bg-red-500'
+                                        }" style="width: ${(registeredStudents / 20) * 100}%"></div>
+                                    </div>
+                                </div>
+                                ${registeredStudents >= 20 ? '<span class="text-red-600 text-sm font-semibold">מלא</span>' :
+                                  registeredStudents >= 18 ? '<span class="text-orange-600 text-sm font-semibold">כמעט מלא</span>' : ''}
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                teacherViewList.appendChild(div);
+            });
+        }
+
+        // עדכון פאנל מנהל
+        function updateAdminPanel() {
+            // עדכון מונים - רק מפגשים עתידיים
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const futureTeachers = teachers.filter(teacher => {
+                const lessonDate = new Date(teacher.date);
+                lessonDate.setHours(0, 0, 0, 0);
+                return lessonDate >= today;
+            });
+            
+            const futureStudents = students.filter(student => {
+                const teacher = teachers.find(t => t.id == student.teacherId);
+                if (!teacher) return false;
+                const lessonDate = new Date(teacher.date);
+                lessonDate.setHours(0, 0, 0, 0);
+                return lessonDate >= today;
+            });
+            
+            document.getElementById('teacherCount').textContent = futureTeachers.length;
+            document.getElementById('studentCount').textContent = futureStudents.length;
+            document.getElementById('lessonCount').textContent = futureTeachers.length;
+
+            // איפוס הסינון
+            currentFilter = 'all';
+            updateFilterButtons();
+            displayFilteredTeachers();
+            displayFilteredStudents();
+        }
+
+        // הצגת מורים מסוננים
+        function displayFilteredTeachers() {
+            const teachersList = document.getElementById('teachersList');
+            teachersList.innerHTML = '';
+            
+            const filteredTeachers = getFilteredTeachers();
+            
+            if (filteredTeachers.length === 0) {
+                teachersList.innerHTML = '<div class="text-gray-500 text-center py-4">אין מורים המתאימים לסינון</div>';
+                return;
+            }
+            
+            filteredTeachers.forEach(teacher => {
+                const div = document.createElement('div');
+                div.className = 'bg-white p-3 rounded-lg border border-purple-200 teacher-item';
+                div.dataset.teacherId = teacher.id;
+                const classesText = formatClassesDisplay(teacher.classes);
+                const formattedDate = formatDateHebrew(teacher.date);
+                const registeredStudents = students.filter(student => student.teacherId == teacher.id).length;
+                
+                div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="font-semibold text-purple-800">${teacher.name}</div>
+                            <div class="text-sm text-gray-600 mb-1">${teacher.subject} - ${classesText}</div>
+                            ${teacher.topic ? `<div class="text-sm text-purple-600 mb-2 font-medium">${teacher.topic}</div>` : ''}
+                            <div class="text-sm text-gray-600 mb-2">${formattedDate} - ${teacher.time}</div>
+                            <div class="text-xs text-gray-500">תלמידים רשומים: ${registeredStudents}/20</div>
+                        </div>
+                        <button onclick="deleteSpecificLesson(${teacher.id})" class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs font-semibold transition-colors ml-2">
+                            מחק
+                        </button>
+                    </div>
+                `;
+                teachersList.appendChild(div);
+            });
+        }
+
+        // הצגת תלמידים מסוננים
+        function displayFilteredStudents() {
+            const studentsList = document.getElementById('studentsList');
+            studentsList.innerHTML = '';
+            
+            const filteredStudents = getFilteredStudents();
+            
+            if (filteredStudents.length === 0) {
+                studentsList.innerHTML = '<div class="text-gray-500 text-center py-4">אין תלמידים המתאימים לסינון</div>';
+                return;
+            }
+            
+            filteredStudents.forEach(student => {
+                const div = document.createElement('div');
+                div.className = 'bg-white p-3 rounded-lg border border-cyan-200 student-item';
+                div.innerHTML = `
+                    <div class="font-semibold text-cyan-800">${student.name} (${student.class})</div>
+                    <div class="text-sm text-gray-600">${student.lesson}</div>
+                `;
+                studentsList.appendChild(div);
+            });
+        }
+
+        // קבלת מורים מסוננים
+        function getFilteredTeachers() {
+            // סינון לפי תאריכים עתידיים
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let filteredByDate = teachers.filter(teacher => {
+                const lessonDate = new Date(teacher.date);
+                lessonDate.setHours(0, 0, 0, 0);
+                return lessonDate >= today;
+            });
+            
+            if (currentFilter === 'all') {
+                return filteredByDate;
+            }
+            
+            return filteredByDate.filter(teacher => {
+                if (currentFilter.length === 1) {
+                    // סינון לפי שכבה (ז, ח, ט)
+                    return teacher.classes.some(cls => cls.startsWith(currentFilter));
+                } else {
+                    // סינון לפי כיתה ספציפית
+                    return teacher.classes.includes(currentFilter);
+                }
+            });
+        }
+
+        // קבלת תלמידים מסוננים
+        function getFilteredStudents() {
+            const filteredTeachers = getFilteredTeachers();
+            const filteredTeacherIds = filteredTeachers.map(t => t.id);
+            
+            if (currentFilter === 'all') {
+                return students.filter(student => filteredTeacherIds.includes(parseInt(student.teacherId)));
+            }
+            
+            return students.filter(student => {
+                if (currentFilter.length === 1) {
+                    // סינון לפי שכבה
+                    return student.class.startsWith(currentFilter) && filteredTeacherIds.includes(parseInt(student.teacherId));
+                } else {
+                    // סינון לפי כיתה ספציפית
+                    return student.class === currentFilter && filteredTeacherIds.includes(parseInt(student.teacherId));
+                }
+            });
+        }
+
+        // סינון לפי שכבה
+        function filterByGrade(grade) {
+            currentFilter = grade;
+            updateFilterButtons();
+            displayFilteredTeachers();
+            displayFilteredStudents();
+        }
+
+        // סינון לפי כיתה ספציפית
+        function filterByClass(className) {
+            currentFilter = className;
+            updateFilterButtons();
+            displayFilteredTeachers();
+            displayFilteredStudents();
+        }
+
+        // עדכון מראה כפתורי הסינון
+        function updateFilterButtons() {
+            // איפוס כל הכפתורים
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-purple-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            
+            document.querySelectorAll('.class-filter-btn').forEach(btn => {
+                btn.classList.remove('active', 'bg-purple-600', 'text-white');
+                btn.classList.add('bg-gray-200', 'text-gray-700');
+            });
+            
+            // הדגשת הכפתור הפעיל
+            if (currentFilter === 'all') {
+                const allBtn = document.querySelector('.filter-btn[onclick="filterByGrade(\'all\')"]');
+                allBtn.classList.add('active', 'bg-purple-600', 'text-white');
+                allBtn.classList.remove('bg-gray-200', 'text-gray-700');
+            } else if (currentFilter.length === 1) {
+                const gradeBtn = document.querySelector(`.filter-btn[onclick="filterByGrade('${currentFilter}')"]`);
+                if (gradeBtn) {
+                    gradeBtn.classList.add('active', 'bg-purple-600', 'text-white');
+                    gradeBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                }
+            } else {
+                const classBtn = document.querySelector(`.class-filter-btn[onclick="filterByClass('${currentFilter}')"]`);
+                if (classBtn) {
+                    classBtn.classList.add('active', 'bg-purple-600', 'text-white');
+                    classBtn.classList.remove('bg-gray-200', 'text-gray-700');
+                }
+            }
+        }
+
+        // בדיקה אם השעה כבר עברה
+        function checkIfTimePassed(selectedDate, selectedTime) {
+            const now = new Date();
+            const selectedDateTime = new Date(selectedDate);
+            
+            // אם התאריך הוא לא היום - השעה לא עברה
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            selectedDateTime.setHours(0, 0, 0, 0);
+            
+            if (selectedDateTime.getTime() !== today.getTime()) {
+                return { hasPassed: false };
+            }
+            
+            // אם זה היום - בדיקה לפי השעה
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            
+            let lessonEndHour, lessonEndMinute, timeText;
+            
+            switch (selectedTime) {
+                case 'שעה 0: 07:45–08:30':
+                    lessonEndHour = 8;
+                    lessonEndMinute = 30;
+                    timeText = 'שעה 0 (07:45–08:30)';
+                    break;
+                case 'שעה 6: 12:55–13:40':
+                    lessonEndHour = 13;
+                    lessonEndMinute = 40;
+                    timeText = 'שעה 6 (12:55–13:40)';
+                    break;
+                case 'שעה 7: 13:40–14:25':
+                    lessonEndHour = 14;
+                    lessonEndMinute = 25;
+                    timeText = 'שעה 7 (13:40–14:25)';
+                    break;
+                case 'שעה 8: 14:35–15:20':
+                    lessonEndHour = 15;
+                    lessonEndMinute = 20;
+                    timeText = 'שעה 8 (14:35–15:20)';
+                    break;
+                default:
+                    return { hasPassed: false };
+            }
+            
+            // בדיקה אם השעה הנוכחית עברה את סוף השיעור
+            const currentTimeInMinutes = currentHour * 60 + currentMinute;
+            const lessonEndTimeInMinutes = lessonEndHour * 60 + lessonEndMinute;
+            
+            return {
+                hasPassed: currentTimeInMinutes >= lessonEndTimeInMinutes,
+                timeText: timeText
+            };
+        }
+
+        // בדיקת רישום כפול למורים
+        function checkTeacherDuplicate(teacherName, date, time) {
+            const existingTeacher = teachers.find(teacher => 
+                teacher.name === teacherName && teacher.date === date
+            );
+            
+            if (!existingTeacher) {
+                return { isDuplicate: false };
+            }
+            
+            const sameTime = existingTeacher.time === time;
+            return { 
+                isDuplicate: true, 
+                sameTime: sameTime,
+                existingTime: existingTeacher.time
+            };
+        }
+
+        // מחיקת שיעור ספציפי
+        function deleteSpecificLesson(teacherId) {
+            const teacher = teachers.find(t => t.id == teacherId);
+            if (!teacher) return;
+            
+            const registeredStudents = students.filter(s => s.teacherId == teacherId);
+            const formattedDate = formatDateHebrew(teacher.date);
+            
+            let message = `האם למחוק את השיעור של ${teacher.name} (${teacher.subject}) בתאריך ${formattedDate} בשעה ${teacher.time}?`;
+            
+            if (registeredStudents.length > 0) {
+                message += `\n\nשים לב: ${registeredStudents.length} תלמידים רשומים לשיעור זה וגם הם יימחקו!`;
+            }
+            
+            showConfirmationDialog(message, () => {
+                // מחיקת המורה
+                teachers = teachers.filter(t => t.id != teacherId);
+                localStorage.setItem('teachers', JSON.stringify(teachers));
+                
+                // מחיקת התלמידים הרשומים לשיעור
+                students = students.filter(s => s.teacherId != teacherId);
+                localStorage.setItem('students', JSON.stringify(students));
+                
+                showMessage('השיעור נמחק בהצלחה!');
+                updateAdminPanel();
+            });
+        }
+
+        // הצגת דיאלוג מחיקה
+        function showDeleteDialog(type) {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            let lessonsToDelete = [];
+            let title = '';
+            let message = '';
+            
+            switch (type) {
+                case 'past':
+                    lessonsToDelete = teachers.filter(teacher => {
+                        const lessonDate = new Date(teacher.date);
+                        lessonDate.setHours(0, 0, 0, 0);
+                        return lessonDate < today;
+                    });
+                    title = 'מחיקת שיעורים שעברו';
+                    message = `נמצאו ${lessonsToDelete.length} שיעורים שכבר עברו. האם למחוק אותם?`;
+                    break;
+                    
+                case 'future':
+                    lessonsToDelete = teachers.filter(teacher => {
+                        const lessonDate = new Date(teacher.date);
+                        lessonDate.setHours(0, 0, 0, 0);
+                        return lessonDate >= today;
+                    });
+                    title = 'מחיקת שיעורים עתידיים';
+                    message = `נמצאו ${lessonsToDelete.length} שיעורים עתידיים. האם למחוק אותם?`;
+                    break;
+                    
+                case 'all':
+                    lessonsToDelete = [...teachers];
+                    title = 'איפוס מלא של המערכת';
+                    message = `האם למחוק את כל הנתונים? (${teachers.length} מורים ו-${students.length} תלמידים)`;
+                    break;
+            }
+            
+            if (lessonsToDelete.length === 0) {
+                showMessage('אין שיעורים למחיקה בקטגוריה זו');
+                return;
+            }
+            
+            showLessonSelectionDialog(title, message, lessonsToDelete, type);
+        }
+
+        // דיאלוג בחירת שיעורים למחיקה
+        function showLessonSelectionDialog(title, message, lessonsToDelete, type) {
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4';
+            
+            const dialog = document.createElement('div');
+            dialog.className = 'bg-white rounded-2xl p-6 max-w-4xl w-full max-h-[80vh] overflow-hidden shadow-2xl';
+            
+            dialog.innerHTML = `
+                <div class="text-center mb-6">
+                    <div class="text-4xl mb-4">🗑️</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-2">${title}</h3>
+                    <p class="text-gray-600">${message}</p>
+                </div>
+                
+                <div class="mb-6">
+                    <div class="flex justify-between items-center mb-4">
+                        <h4 class="text-lg font-semibold text-gray-800">בחר שיעורים למחיקה:</h4>
+                        <div class="flex gap-2">
+                            <button id="selectAllBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                                בחר הכל
+                            </button>
+                            <button id="deselectAllBtn" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-lg text-sm font-semibold transition-colors">
+                                בטל הכל
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="max-h-64 overflow-y-auto bg-gray-50 rounded-xl p-4">
+                        <div id="lessonCheckboxes" class="space-y-3">
+                            <!-- רשימת שיעורים תוצג כאן -->
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex gap-4">
+                    <button id="deleteSelectedBtn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-bold flex-1 transition-colors">
+                        מחק נבחרים
+                    </button>
+                    <button id="cancelDeleteBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-xl font-bold flex-1 transition-colors">
+                        ביטול
+                    </button>
+                </div>
+            `;
+            
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+            
+            // יצירת רשימת שיעורים
+            const checkboxContainer = document.getElementById('lessonCheckboxes');
+            lessonsToDelete.forEach(teacher => {
+                const registeredStudents = students.filter(s => s.teacherId == teacher.id).length;
+                const formattedDate = formatDateHebrew(teacher.date);
+                const classesText = formatClassesDisplay(teacher.classes);
+                
+                const lessonDiv = document.createElement('div');
+                lessonDiv.className = 'bg-white p-3 rounded-lg border border-gray-200';
+                lessonDiv.innerHTML = `
+                    <label class="flex items-start space-x-3 space-x-reverse cursor-pointer">
+                        <input type="checkbox" class="lesson-checkbox mt-1 text-red-600 focus:ring-red-500" data-teacher-id="${teacher.id}">
+                        <div class="flex-1">
+                            <div class="font-semibold text-gray-800">${teacher.name} - ${teacher.subject}</div>
+                            ${teacher.topic ? `<div class="text-sm text-purple-600 font-medium">${teacher.topic}</div>` : ''}
+                            <div class="text-sm text-gray-600">${classesText}</div>
+                            <div class="text-sm text-gray-600">${formattedDate} - ${teacher.time}</div>
+                            <div class="text-xs text-gray-500">תלמידים רשומים: ${registeredStudents}</div>
+                        </div>
+                    </label>
+                `;
+                checkboxContainer.appendChild(lessonDiv);
+            });
+            
+            // מאזינים לכפתורים
+            document.getElementById('selectAllBtn').onclick = () => {
+                document.querySelectorAll('.lesson-checkbox').forEach(cb => cb.checked = true);
+            };
+            
+            document.getElementById('deselectAllBtn').onclick = () => {
+                document.querySelectorAll('.lesson-checkbox').forEach(cb => cb.checked = false);
+            };
+            
+            document.getElementById('deleteSelectedBtn').onclick = () => {
+                const selectedIds = Array.from(document.querySelectorAll('.lesson-checkbox:checked'))
+                    .map(cb => parseInt(cb.dataset.teacherId));
+                
+                if (selectedIds.length === 0) {
+                    showMessage('יש לבחור לפחות שיעור אחד למחיקה', 'error');
+                    return;
+                }
+                
+                const selectedStudentsCount = students.filter(s => selectedIds.includes(parseInt(s.teacherId))).length;
+                
+                const confirmMessage = `האם למחוק ${selectedIds.length} שיעורים ו-${selectedStudentsCount} תלמידים רשומים?`;
+                
+                showConfirmationDialog(confirmMessage, () => {
+                    // מחיקת המורים הנבחרים
+                    teachers = teachers.filter(t => !selectedIds.includes(t.id));
+                    localStorage.setItem('teachers', JSON.stringify(teachers));
+                    
+                    // מחיקת התלמידים הרשומים לשיעורים הנבחרים
+                    students = students.filter(s => !selectedIds.includes(parseInt(s.teacherId)));
+                    localStorage.setItem('students', JSON.stringify(students));
+                    
+                    document.body.removeChild(overlay);
+                    showMessage(`נמחקו ${selectedIds.length} שיעורים ו-${selectedStudentsCount} תלמידים בהצלחה!`);
+                    updateAdminPanel();
+                });
+            };
+            
+            document.getElementById('cancelDeleteBtn').onclick = () => {
+                document.body.removeChild(overlay);
+            };
+            
+            // סגירה בלחיצה על הרקע
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                }
+            };
+        }
+
+        // הצגת דיאלוג רישום נוסף
+        function showAdditionalRegistrationDialog() {
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+            
+            const dialog = document.createElement('div');
+            dialog.className = 'bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl';
+            
+            dialog.innerHTML = `
+                <div class="text-center">
+                    <div class="text-4xl mb-4">✅</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">רישום הושלם בהצלחה!</h3>
+                    <p class="text-gray-600 mb-6">האם ברצונך לרשום שיעור נוסף?</p>
+                    <div class="flex gap-4">
+                        <button id="registerAnotherBtn" class="btn-primary text-white px-6 py-3 rounded-xl font-bold flex-1">
+                            רישום נוסף
+                        </button>
+                        <button id="goHomeBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-xl font-bold flex-1 transition-colors">
+                            חזור לעמוד הבית
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+            
+            // מאזינים לכפתורים
+            document.getElementById('registerAnotherBtn').onclick = () => {
+                document.body.removeChild(overlay);
+                // הטופס כבר מאופס, רק צריך להישאר בעמוד
+            };
+            
+            document.getElementById('goHomeBtn').onclick = () => {
+                document.body.removeChild(overlay);
+                showHomePage();
+            };
+            
+            // סגירה בלחיצה על הרקע
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                    showHomePage();
+                }
+            };
+        }
+
+        // הצגת דיאלוג אישור
+        function showConfirmationDialog(message, onConfirm) {
+            const overlay = document.createElement('div');
+            overlay.className = 'fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center';
+            
+            const dialog = document.createElement('div');
+            dialog.className = 'bg-white rounded-2xl p-8 max-w-md mx-4 shadow-2xl';
+            
+            dialog.innerHTML = `
+                <div class="text-center">
+                    <div class="text-4xl mb-4">❓</div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">אישור פעולה</h3>
+                    <p class="text-gray-600 mb-6 whitespace-pre-line">${message}</p>
+                    <div class="flex gap-4">
+                        <button id="confirmBtn" class="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-xl font-bold flex-1 transition-colors">
+                            אישור
+                        </button>
+                        <button id="cancelBtn" class="bg-gray-300 hover:bg-gray-400 text-gray-700 px-6 py-3 rounded-xl font-bold flex-1 transition-colors">
+                            ביטול
+                        </button>
+                    </div>
+                </div>
+            `;
+            
+            overlay.appendChild(dialog);
+            document.body.appendChild(overlay);
+            
+            // מאזינים לכפתורים
+            document.getElementById('confirmBtn').onclick = () => {
+                document.body.removeChild(overlay);
+                onConfirm();
+            };
+            
+            document.getElementById('cancelBtn').onclick = () => {
+                document.body.removeChild(overlay);
+            };
+            
+            // סגירה בלחיצה על הרקע
+            overlay.onclick = (e) => {
+                if (e.target === overlay) {
+                    document.body.removeChild(overlay);
+                }
+            };
+        }
+
+        // הצגת הודעה
+        function showMessage(message, type = 'success') {
+            const messageBox = document.getElementById('messageBox');
+            const messageText = document.getElementById('messageText');
+            
+            messageText.textContent = message;
+            
+            // שינוי צבע לפי סוג ההודעה
+            const messageDiv = messageBox.firstElementChild;
+            if (type === 'error') {
+                messageDiv.className = 'bg-red-500 text-white px-8 py-4 rounded-xl shadow-2xl text-center';
+            } else {
+                messageDiv.className = 'bg-green-500 text-white px-8 py-4 rounded-xl shadow-2xl text-center';
+            }
+            
+            messageBox.classList.remove('hidden');
+            
+            setTimeout(() => {
+                messageBox.classList.add('hidden');
+            }, 3000);
+        }
+
+        // הצגת ספינר
+        function showSpinner() {
+            document.getElementById('loadingSpinner').classList.remove('hidden');
+        }
+
+        // הסתרת ספינר
+        function hideSpinner() {
+            document.getElementById('loadingSpinner').classList.add('hidden');
+        }
+    </script>
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'98fa15a036d98e4b',t:'MTc2MDY0NDIxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
