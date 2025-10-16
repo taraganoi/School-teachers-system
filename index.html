@@ -662,9 +662,9 @@
     </div>
 
     <script>
-        // נתונים מקומיים + Firebase Realtime Database
-        let teachers = JSON.parse(localStorage.getItem('teachers') || '[]');
-        let students = JSON.parse(localStorage.getItem('students') || '[]');
+        // נתונים מ-Firebase Realtime Database בלבד
+        let teachers = [];
+        let students = [];
         
         // הגדרות Firebase
         // כדי להשתמש ב-Firebase, יש ליצור פרויקט Firebase ולהחליף את הערכים הבאים:
@@ -694,18 +694,77 @@
         // פונקציה לשליחת נתונים ל-Firebase
         async function saveToFirebase(path, data) {
             try {
-                await database.ref(path).push(data);
-                console.log('נתונים נשמרו בהצלחה ב-Firebase');
-                return true;
+                const newRef = await database.ref(path).push(data);
+                console.log('נתונים נשמרו בהצלחה ב-Firebase עם מפתח:', newRef.key);
+                return newRef.key; // מחזיר את המפתח של Firebase
             } catch (error) {
                 console.error('שגיאה בשמירה ב-Firebase:', error);
                 // הצגת הודעת שגיאה למשתמש
                 if (error.code === 'PERMISSION_DENIED') {
                     showMessage('אין הרשאה לשמור נתונים. אנא בדוק את הגדרות Firebase.', 'error');
                 } else if (error.code === 'UNAVAILABLE') {
-                    showMessage('השרת לא זמין כרגע. הנתונים נשמרו מקומית.', 'error');
+                    showMessage('השרת לא זמין כרגע. אנא נסה שוב מאוחר יותר.', 'error');
                 } else {
-                    showMessage('שגיאה בשמירת הנתונים. הנתונים נשמרו מקומית.', 'error');
+                    showMessage('שגיאה בשמירת הנתונים. אנא נסה שוב.', 'error');
+                }
+                return null;
+            }
+        }
+        
+        // פונקציה למחיקת נתונים מ-Firebase
+        async function deleteFromFirebase(path, recordId) {
+            try {
+                console.log(`מנסה למחוק ${path} עם ID: ${recordId}`);
+                
+                // חיפוש הרשומה לפי ID ומחיקתה
+                const snapshot = await database.ref(path).once('value');
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    console.log(`נמצאו ${Object.keys(data).length} רשומות ב-${path}`);
+                    
+                    for (const key in data) {
+                        console.log(`בודק רשומה ${key} עם ID: ${data[key].id}`);
+                        if (data[key].id === recordId) {
+                            console.log(`מצא התאמה! מוחק רשומה ${key}`);
+                            await database.ref(`${path}/${key}`).remove();
+                            console.log('רשומה נמחקה בהצלחה מ-Firebase');
+                            return true;
+                        }
+                    }
+                    console.log(`לא נמצאה רשומה עם ID ${recordId} ב-${path}`);
+                } else {
+                    console.log(`אין נתונים ב-${path}`);
+                }
+                return true; // לא שגיאה אם לא נמצאה הרשומה
+            } catch (error) {
+                console.error('שגיאה במחיקה מ-Firebase:', error);
+                // הצגת הודעת שגיאה למשתמש
+                if (error.code === 'PERMISSION_DENIED') {
+                    showMessage('אין הרשאה למחוק נתונים. אנא בדוק את הגדרות Firebase.', 'error');
+                } else if (error.code === 'UNAVAILABLE') {
+                    showMessage('השרת לא זמין כרגע. אנא נסה שוב מאוחר יותר.', 'error');
+                } else {
+                    showMessage('שגיאה במחיקת הנתונים. אנא נסה שוב.', 'error');
+                }
+                return false;
+            }
+        }
+        
+        // פונקציה למחיקת נתונים מ-Firebase לפי Firebase Key
+        async function deleteFromFirebaseByKey(path, firebaseKey) {
+            try {
+                console.log(`מנסה למחוק ${path}/${firebaseKey}`);
+                await database.ref(`${path}/${firebaseKey}`).remove();
+                console.log('רשומה נמחקה בהצלחה מ-Firebase');
+                return true;
+            } catch (error) {
+                console.error('שגיאה במחיקה מ-Firebase:', error);
+                if (error.code === 'PERMISSION_DENIED') {
+                    showMessage('אין הרשאה למחוק נתונים. אנא בדוק את הגדרות Firebase.', 'error');
+                } else if (error.code === 'UNAVAILABLE') {
+                    showMessage('השרת לא זמין כרגע. אנא נסה שוב מאוחר יותר.', 'error');
+                } else {
+                    showMessage('שגיאה במחיקת הנתונים. אנא נסה שוב.', 'error');
                 }
                 return false;
             }
@@ -730,13 +789,13 @@
                             classes: teacher.classes || [],
                             date: teacher.date || '',
                             time: teacher.time || '',
-                            timestamp: teacher.timestamp || ''
+                            timestamp: teacher.timestamp || '',
+                            firebaseKey: key // שמירת מפתח Firebase
                         };
                     }).filter(teacher => teacher.name && teacher.date);
                     
                     // החלפה מלאה של נתוני המורים
                     teachers = serverTeachers;
-                    localStorage.setItem('teachers', JSON.stringify(teachers));
                 }
                 
                 // טעינת תלמידים
@@ -751,13 +810,13 @@
                             class: student.class || '',
                             lesson: student.lesson || '',
                             teacherId: student.teacherId || null,
-                            timestamp: student.timestamp || ''
+                            timestamp: student.timestamp || '',
+                            firebaseKey: key // שמירת מפתח Firebase
                         };
                     }).filter(student => student.name && student.teacherId);
                     
                     // החלפה מלאה של נתוני התלמידים
                     students = serverStudents;
-                    localStorage.setItem('students', JSON.stringify(students));
                 }
                 
                 dataLoadedFromServer = true;
@@ -777,11 +836,11 @@
                 console.error('שגיאה בטעינת נתונים מ-Firebase:', error);
                 // הצגת הודעת שגיאה ספציפית
                 if (error.code === 'PERMISSION_DENIED') {
-                    showMessage('אין הרשאה לטעון נתונים. משתמש בנתונים מקומיים.', 'error');
+                    showMessage('אין הרשאה לטעון נתונים. אנא בדוק את הגדרות Firebase.', 'error');
                 } else if (error.code === 'UNAVAILABLE') {
-                    showMessage('השרת לא זמין כרגע. משתמש בנתונים מקומיים.', 'error');
+                    showMessage('השרת לא זמין כרגע. אנא נסה שוב מאוחר יותר.', 'error');
                 } else {
-                    showMessage('לא ניתן לטעון נתונים מהשרת, משתמש בנתונים מקומיים', 'error');
+                    showMessage('לא ניתן לטעון נתונים מהשרת. אנא נסה שוב מאוחר יותר.', 'error');
                 }
             }
         }
@@ -996,10 +1055,8 @@
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('teacherDate').min = today;
             
-            // טעינת נתונים מגוגל שיטס בהפעלה - רק אם אין נתונים מקומיים
-            if (teachers.length === 0 && students.length === 0) {
-                loadDataFromFirebase();
-            }
+            // טעינת נתונים מ-Firebase בהפעלה
+            loadDataFromFirebase();
         });
 
         // שליחת טופס מורים
@@ -1079,10 +1136,6 @@
                         time: selectedTime
                     };
 
-                    // שמירה מקומית
-                    teachers.push(teacher);
-                    localStorage.setItem('teachers', JSON.stringify(teachers));
-                    
                     // שליחה ל-Firebase
                     const firebaseData = {
                         id: teacher.id,
@@ -1095,7 +1148,13 @@
                         time: selectedTime
                     };
                     
-                    const firebaseSent = await saveToFirebase('teachers', firebaseData);
+                    const firebaseKey = await saveToFirebase('teachers', firebaseData);
+                    
+                    // הוספה לרשימה המקומית
+                    if (firebaseKey) {
+                        teacher.firebaseKey = firebaseKey;
+                    }
+                    teachers.push(teacher);
                     
                     // הסתרת ספינר
                     hideSpinner();
@@ -1181,10 +1240,6 @@
                     teacherId: teacherId
                 };
 
-                // שמירה מקומית
-                students.push(student);
-                localStorage.setItem('students', JSON.stringify(students));
-                
                 // שליחה ל-Firebase
                 const firebaseData = {
                     id: student.id,
@@ -1199,7 +1254,13 @@
                     lessonTime: teacher.time
                 };
                 
-                const firebaseSent = await saveToFirebase('students', firebaseData);
+                const firebaseKey = await saveToFirebase('students', firebaseData);
+                
+                // הוספה לרשימה המקומית
+                if (firebaseKey) {
+                    student.firebaseKey = firebaseKey;
+                }
+                students.push(student);
                 
                 // הסתרת ספינר
                 hideSpinner();
@@ -1815,14 +1876,41 @@
                 message += `\n\nשים לב: ${registeredStudents.length} תלמידים רשומים לשיעור זה וגם הם יימחקו!`;
             }
             
-            showConfirmationDialog(message, () => {
-                // מחיקת המורה
+            showConfirmationDialog(message, async () => {
+                // מחיקת המורה מהרשימה המקומית
                 teachers = teachers.filter(t => t.id != teacherId);
-                localStorage.setItem('teachers', JSON.stringify(teachers));
                 
-                // מחיקת התלמידים הרשומים לשיעור
+                // מחיקת התלמידים הרשומים לשיעור מהרשימה המקומית
+                const studentsToDelete = students.filter(s => s.teacherId == teacherId);
                 students = students.filter(s => s.teacherId != teacherId);
-                localStorage.setItem('students', JSON.stringify(students));
+                
+                // מחיקה מ-Firebase
+                try {
+                    console.log(`מתחיל מחיקה מ-Firebase עבור מורה ID: ${teacherId}`);
+                    
+                    // מחיקת המורה מ-Firebase
+                    if (teacher.firebaseKey) {
+                        const teacherDeleted = await deleteFromFirebaseByKey('teachers', teacher.firebaseKey);
+                        console.log(`תוצאת מחיקת מורה: ${teacherDeleted}`);
+                    } else {
+                        console.log('אין מפתח Firebase למורה, מנסה חיפוש לפי ID');
+                        await deleteFromFirebase('teachers', teacherId);
+                    }
+                    
+                    // מחיקת התלמידים הרשומים לשיעור מ-Firebase
+                    console.log(`מחיקת ${studentsToDelete.length} תלמידים מ-Firebase`);
+                    for (const student of studentsToDelete) {
+                        if (student.firebaseKey) {
+                            const studentDeleted = await deleteFromFirebaseByKey('students', student.firebaseKey);
+                            console.log(`תוצאת מחיקת תלמיד ${student.id}: ${studentDeleted}`);
+                        } else {
+                            console.log(`אין מפתח Firebase לתלמיד ${student.id}, מנסה חיפוש לפי ID`);
+                            await deleteFromFirebase('students', student.id);
+                        }
+                    }
+                } catch (error) {
+                    console.error('שגיאה במחיקה מ-Firebase:', error);
+                }
                 
                 showMessage('השיעור נמחק בהצלחה!');
                 updateAdminPanel();
@@ -1968,14 +2056,37 @@
                 
                 const confirmMessage = `האם למחוק ${selectedIds.length} שיעורים ו-${selectedStudentsCount} תלמידים רשומים?`;
                 
-                showConfirmationDialog(confirmMessage, () => {
-                    // מחיקת המורים הנבחרים
+                showConfirmationDialog(confirmMessage, async () => {
+                    // מחיקת המורים הנבחרים מהרשימה המקומית
+                    const teachersToDelete = teachers.filter(t => selectedIds.includes(t.id));
                     teachers = teachers.filter(t => !selectedIds.includes(t.id));
-                    localStorage.setItem('teachers', JSON.stringify(teachers));
                     
-                    // מחיקת התלמידים הרשומים לשיעורים הנבחרים
+                    // מחיקת התלמידים הרשומים לשיעורים הנבחרים מהרשימה המקומית
+                    const studentsToDelete = students.filter(s => selectedIds.includes(parseInt(s.teacherId)));
                     students = students.filter(s => !selectedIds.includes(parseInt(s.teacherId)));
-                    localStorage.setItem('students', JSON.stringify(students));
+                    
+                    // מחיקה מ-Firebase
+                    try {
+                        // מחיקת המורים מ-Firebase
+                        for (const teacher of teachersToDelete) {
+                            if (teacher.firebaseKey) {
+                                await deleteFromFirebaseByKey('teachers', teacher.firebaseKey);
+                            } else {
+                                await deleteFromFirebase('teachers', teacher.id);
+                            }
+                        }
+                        
+                        // מחיקת התלמידים מ-Firebase
+                        for (const student of studentsToDelete) {
+                            if (student.firebaseKey) {
+                                await deleteFromFirebaseByKey('students', student.firebaseKey);
+                            } else {
+                                await deleteFromFirebase('students', student.id);
+                            }
+                        }
+                    } catch (error) {
+                        console.error('שגיאה במחיקה מ-Firebase:', error);
+                    }
                     
                     document.body.removeChild(overlay);
                     showMessage(`נמחקו ${selectedIds.length} שיעורים ו-${selectedStudentsCount} תלמידים בהצלחה!`);
