@@ -872,11 +872,15 @@
         function showHomePage() {
             hideAllPages();
             document.getElementById('homePage').classList.remove('hidden');
+            // רענון נתונים מהשרת
+            loadDataFromFirebase();
         }
 
         function showTeacherForm() {
             hideAllPages();
             document.getElementById('teacherPage').classList.remove('hidden');
+            // רענון נתונים מהשרת
+            loadDataFromFirebase();
         }
 
         function showStudentForm() {
@@ -891,7 +895,19 @@
         function showAdminPanel() {
             hideAllPages();
             document.getElementById('adminPage').classList.remove('hidden');
-            updateAdminPanel();
+            // רענון נתונים מהשרת ואז עדכון הפאנל
+            loadDataFromFirebase().then(() => {
+                updateAdminPanel();
+            });
+        }
+
+        function showTeacherViewPage() {
+            hideAllPages();
+            document.getElementById('teacherViewPage').classList.remove('hidden');
+            // רענון נתונים מהשרת ואז עדכון העמוד
+            loadDataFromFirebase().then(() => {
+                updateTeacherViewPage();
+            });
         }
 
         // הצגת דיאלוג סיסמה
@@ -948,6 +964,11 @@
                     document.body.removeChild(overlay);
                     if (type === 'teacher') {
                         showTeacherForm();
+                    } else if (type === 'teacher-view') {
+                        // טעינת נתונים מהשרת ואז מעבר לעמוד צפייה למורים
+                        loadDataFromFirebase().then(() => {
+                            showTeacherViewPage();
+                        });
                     } else {
                         // טעינת נתונים מהשרת ואז מעבר לפאנל מנהל
                         loadDataFromFirebase().then(() => {
